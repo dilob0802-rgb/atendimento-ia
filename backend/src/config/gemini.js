@@ -23,7 +23,7 @@ export async function gerarResposta(mensagem, contextoEmpresa = '', historico = 
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
         // Monta o prompt com contexto da empresa
         const prompt = `
@@ -59,7 +59,7 @@ export async function analisarSentimento(mensagem) {
     if (!genAI) return 'neutro';
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const prompt = `Analise o sentimento desta mensagem e responda APENAS com uma palavra: positivo, negativo ou neutro.
 
 Mensagem: "${mensagem}"
