@@ -13,7 +13,9 @@ export default function Empresas() {
         nome: '',
         email: '',
         telefone: '',
-        contexto_ia: ''
+        contexto_ia: '',
+        senha: '',
+        confirmar_senha: ''
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -45,6 +47,23 @@ export default function Empresas() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validar senhas
+        if (!formData.senha) {
+            alert('Por favor, defina uma senha para a empresa.');
+            return;
+        }
+
+        if (formData.senha !== formData.confirmar_senha) {
+            alert('As senhas não coincidem!');
+            return;
+        }
+
+        if (formData.senha.length < 6) {
+            alert('A senha deve ter no mínimo 6 caracteres.');
+            return;
+        }
+
         setSubmitting(true);
 
         try {
@@ -60,7 +79,7 @@ export default function Empresas() {
 
             if (data.success) {
                 setShowModal(false);
-                setFormData({ nome: '', email: '', telefone: '', contexto_ia: '' });
+                setFormData({ nome: '', email: '', telefone: '', contexto_ia: '', senha: '', confirmar_senha: '' });
                 fetchEmpresas();
                 alert('Empresa cadastrada com sucesso!');
             } else {
@@ -337,6 +356,68 @@ export default function Empresas() {
                                             }}
                                         />
                                     </div>
+
+                                    <div style={{ marginBottom: '1.25rem' }}>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.5rem',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '500',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            Senha de Acesso *
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="senha"
+                                            value={formData.senha}
+                                            onChange={handleInputChange}
+                                            required
+                                            placeholder="Mínimo 6 caracteres"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '0.95rem'
+                                            }}
+                                        />
+                                        <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                            Esta será a senha que o cliente usará para fazer login
+                                        </p>
+                                    </div>
+
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.5rem',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '500',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            Confirmar Senha *
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="confirmar_senha"
+                                            value={formData.confirmar_senha}
+                                            onChange={handleInputChange}
+                                            required
+                                            placeholder="Digite a senha novamente"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '0.95rem'
+                                            }}
+                                        />
+                                    </div>
+
 
                                     {/* Info Box */}
                                     <div style={{

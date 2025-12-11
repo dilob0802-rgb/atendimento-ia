@@ -90,7 +90,7 @@ router.get('/:id', async (req, res) => {
 // Criar nova empresa
 router.post('/', async (req, res) => {
     try {
-        const { nome, email, telefone, contexto_ia, configuracoes } = req.body;
+        const { nome, email, telefone, contexto_ia, configuracoes, senha } = req.body;
 
         if (!nome || !email) {
             return res.status(400).json({
@@ -99,7 +99,29 @@ router.post('/', async (req, res) => {
             });
         }
 
-        const { data, error } = await supabase
+        if (!senha) {
+            return res.status(400).json({
+                success: false,
+                error: 'Senha é obrigatória'
+            });
+        }
+
+        // Verificar se já existe um usuário com este email
+        const { data: existingUser } = await supabase
+            .from('usuarios')
+            .select('id')
+            .eq('email', email)
+            .single();
+
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                error: 'Já existe um usuário com este email'
+            });
+        }
+
+        // 1. Criar a empresa
+        const { data: empresa, error: empresaError } = await supabase
             .from('empresas')
             .insert([{
                 nome,
@@ -112,9 +134,36 @@ router.post('/', async (req, res) => {
             .select()
             .single();
 
-        if (error) throw error;
+        if (empresaError) throw empresaError;
 
-        res.status(201).json({ success: true, data });
+        // 2. Criar usuário para a empresa
+        const bcrypt = await import('bcryptjs');
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        const { data: usuario, error: usuarioError } = await supabase
+            .from('usuarios')
+            .insert([{
+                email: email,
+                senha_hash: senhaHash,
+                nome: nome,
+                role: 'client',
+                empresa_id: empresa.id,
+                ativo: true
+            }])
+            .select()
+            .single();
+
+        if (usuarioError) {
+            // Se falhar ao criar usuário, remover empresa criada
+            await supabase.from('empresas').delete().eq('id', empresa.id);
+            throw usuarioError;
+        }
+
+        res.status(201).json({
+            success: true,
+            data: empresa,
+            message: 'Empresa e usuário criados com sucesso'
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
