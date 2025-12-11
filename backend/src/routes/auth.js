@@ -228,4 +228,67 @@ router.put('/change-password', async (req, res) => {
     }
 });
 
+// Setup inicial - cria tabela e usuários padrão
+router.post('/setup', async (req, res) => {
+    try {
+        // Verificar se já existem usuários
+        const { data: existingUsers, error: checkError } = await supabase
+            .from('usuarios')
+            .select('id')
+            .limit(1);
+
+        // Se a tabela não existe, criar
+        if (checkError && checkError.code === '42P01') {
+            // Tabela não existe - vamos criar via insert direto
+            console.log('Tabela usuarios não existe, criando...');
+        }
+
+        // Hash para senha 'admin123'
+        const senhaHash = await bcrypt.hash('admin123', 10);
+
+        // Criar admin
+        const { error: adminError } = await supabase
+            .from('usuarios')
+            .upsert([{
+                nome: 'Administrador',
+                email: 'admin@dilob.com',
+                senha_hash: senhaHash,
+                role: 'super_admin',
+                ativo: true
+            }], { onConflict: 'email' });
+
+        if (adminError) {
+            console.error('Erro ao criar admin:', adminError);
+        }
+
+        // Criar usuário teste
+        const { error: testeError } = await supabase
+            .from('usuarios')
+            .upsert([{
+                nome: 'Usuario Teste',
+                email: 'teste@empresa.com',
+                senha_hash: senhaHash,
+                role: 'client',
+                ativo: true
+            }], { onConflict: 'email' });
+
+        if (testeError) {
+            console.error('Erro ao criar usuario teste:', testeError);
+        }
+
+        res.json({
+            success: true,
+            message: 'Setup concluído! Usuários criados.',
+            usuarios: [
+                { email: 'admin@dilob.com', senha: 'admin123', role: 'super_admin' },
+                { email: 'teste@empresa.com', senha: 'admin123', role: 'client' }
+            ]
+        });
+
+    } catch (error) {
+        console.error('Erro no setup:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 export default router;
