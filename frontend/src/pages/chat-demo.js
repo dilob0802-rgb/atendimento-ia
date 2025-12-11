@@ -41,17 +41,27 @@ export default function ChatDemo() {
                 const lead = JSON.parse(storedLead);
                 setCurrentLead(lead);
 
+                // Normaliza o ID da conversa (pode vir como .conversa_id do modal ou .id do Kanban)
+                const conversaId = lead.conversa_id || lead.id;
+
                 // Se o lead tem um ID de conversa, busca o histórico
-                if (lead.conversa_id) {
-                    console.log('🔄 Buscando histórico da conversa:', lead.conversa_id);
-                    fetch(`${API_URL}/api/chat/conversa/${lead.conversa_id}`)
+                if (conversaId) {
+                    console.log('🔄 Buscando histórico da conversa:', conversaId);
+
+                    // Atualiza o lead no estado para garantir que tenhamos o ID certo para futuros envios
+                    if (!lead.conversa_id) {
+                        lead.conversa_id = conversaId;
+                        setCurrentLead(prev => ({ ...prev, conversa_id: conversaId }));
+                    }
+
+                    fetch(`${API_URL}/api/chat/conversa/${conversaId}`)
                         .then(res => res.json())
                         .then(data => {
                             if (data.success && data.data && data.data.length > 0) {
                                 // Mapeia mensagens do DB para formato do chat
                                 const dbMessages = data.data.map(m => ({
                                     tipo: m.tipo,
-                                    mensagem: m.mensagem, // O backend já retorna 'mensagem' corretamente
+                                    mensagem: m.mensagem,
                                     timestamp: new Date(m.created_at)
                                 }));
                                 setMessages(dbMessages);
@@ -115,6 +125,7 @@ export default function ChatDemo() {
                 },
                 body: JSON.stringify({
                     empresa_id: empresaId || 'demo',
+                    conversa_id: currentLead?.conversa_id || currentLead?.id, // Envia ID se existir para manter contexto
                     cliente_nome: currentLead?.nome || 'Visitante',
                     cliente_telefone: currentLead?.telefone || 'web-demo',
                     cliente_email: currentLead?.email || '',
