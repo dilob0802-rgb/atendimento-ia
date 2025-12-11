@@ -20,6 +20,7 @@ router.post('/login', async (req, res) => {
         }
 
         // Buscar usuário pelo email
+        console.log('🔍 Tentativa de login com email:', email);
         const { data: usuario, error } = await supabase
             .from('usuarios')
             .select('*')
@@ -27,21 +28,27 @@ router.post('/login', async (req, res) => {
             .single();
 
         if (error || !usuario) {
+            console.log('❌ Usuário não encontrado ou erro:', error?.message || 'Usuário não existe');
             return res.status(401).json({
                 success: false,
                 error: 'Email ou senha inválidos'
             });
         }
+
+        console.log('✅ Usuário encontrado:', usuario.email, 'Role:', usuario.role);
 
         // Verificar senha
         const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
 
         if (!senhaValida) {
+            console.log('❌ Senha inválida para:', usuario.email);
             return res.status(401).json({
                 success: false,
                 error: 'Email ou senha inválidos'
             });
         }
+
+        console.log('✅ Senha válida para:', usuario.email);
 
         // Verificar se usuário está ativo
         if (!usuario.ativo) {

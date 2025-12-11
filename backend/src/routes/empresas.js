@@ -137,13 +137,16 @@ router.post('/', async (req, res) => {
         if (empresaError) throw empresaError;
 
         // 2. Criar usuário para a empresa
+        console.log('👤 Criando usuário para empresa:', empresa.id);
+        console.log('📧 Email do usuário:', email);
         const bcrypt = await import('bcryptjs');
         const senhaHash = await bcrypt.hash(senha, 10);
+        console.log('🔒 Hash da senha gerado');
 
         const { data: usuario, error: usuarioError } = await supabase
             .from('usuarios')
             .insert([{
-                email: email,
+                email: email.toLowerCase(), // Normalizar email
                 senha_hash: senhaHash,
                 nome: nome,
                 role: 'client',
@@ -154,10 +157,13 @@ router.post('/', async (req, res) => {
             .single();
 
         if (usuarioError) {
+            console.log('❌ Erro ao criar usuário:', usuarioError);
             // Se falhar ao criar usuário, remover empresa criada
             await supabase.from('empresas').delete().eq('id', empresa.id);
             throw usuarioError;
         }
+
+        console.log('✅ Usuário criado com sucesso:', usuario.email);
 
         res.status(201).json({
             success: true,
