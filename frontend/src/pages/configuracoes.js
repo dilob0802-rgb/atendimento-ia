@@ -27,12 +27,31 @@ export default function Configuracoes() {
         if (storedCompanyId && role !== 'super_admin') {
             setCompanyId(storedCompanyId);
             fetchCompanyData(storedCompanyId);
+        } else if (role === 'super_admin') {
+            // Se for super admin, busca a primeira empresa para visualizar
+            fetchFirstCompany();
         } else {
-            // Se for super admin ou não tiver empresa, redirecionar ou mostrar aviso
-            // Por enquanto, vamos carregar a primeira empresa para demonstração se for dev
             setLoading(false);
         }
     }, []);
+
+    const fetchFirstCompany = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/empresas`);
+            const data = await res.json();
+            if (data.success && data.data.length > 0) {
+                const firstCompany = data.data[0];
+                setCompanyId(firstCompany.id);
+                fetchCompanyData(firstCompany.id);
+            } else {
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar empresas:', error);
+            setLoading(false);
+        }
+    };
+
 
     const fetchCompanyData = async (id) => {
         try {
