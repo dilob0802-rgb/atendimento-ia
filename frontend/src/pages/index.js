@@ -17,17 +17,23 @@ export default function Login() {
         setLoading(true);
         setError('');
 
+        // Timeout de 10 segundos
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
         try {
             const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha: password })
+                body: JSON.stringify({ email, senha: password }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 
             if (data.success) {
-                // Salvar dados no localStorage
                 localStorage.setItem('auth_token', data.data.token);
                 localStorage.setItem('user_role', data.data.user.role === 'super_admin' ? 'super_admin' : 'client');
                 localStorage.setItem('user_name', data.data.user.nome);
@@ -39,14 +45,21 @@ export default function Login() {
                     localStorage.removeItem('company_id');
                 }
 
-                // Redirecionar
                 window.location.href = '/dashboard';
             } else {
-                setError(data.error || 'Erro ao fazer login');
+                setError(data.error || 'Email ou senha inválidos');
             }
         } catch (err) {
+            clearTimeout(timeoutId);
             console.error('Erro no login:', err);
-            setError('Erro de conexão. Verifique se o servidor está rodando.');
+
+            if (err.name === 'AbortError') {
+                setError('Tempo esgotado. O servidor não respondeu.');
+            } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+                setError('Servidor indisponível. Tente novamente mais tarde.');
+            } else {
+                setError('Email ou senha inválidos');
+            }
         } finally {
             setLoading(false);
         }
