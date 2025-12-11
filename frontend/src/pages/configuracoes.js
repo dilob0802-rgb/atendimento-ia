@@ -222,6 +222,52 @@ export default function Configuracoes() {
                                 <h3>📝 Página de Captura de Leads</h3>
                             </div>
 
+                            {companyId && (
+                                <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
+                                        🔗 Seu Link de Captura:
+                                    </label>
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={`${typeof window !== 'undefined' ? window.location.origin : ''}/captura/${companyId}`}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.75rem',
+                                                borderRadius: '6px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '0.9rem',
+                                                fontWeight: '500'
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn btn-primary"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(`${window.location.origin}/captura/${companyId}`);
+                                                alert('Link copiado!');
+                                            }}
+                                        >
+                                            Copiar
+                                        </button>
+                                        <a
+                                            href={`/captura/${companyId}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-secondary"
+                                        >
+                                            Abrir
+                                        </a>
+                                    </div>
+                                    <p style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                                        Envie este link para seus clientes iniciarem um atendimento na web.
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="form-group">
                                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
                                     Mensagem de Boas-Vindas
@@ -248,47 +294,7 @@ export default function Configuracoes() {
                                 />
                             </div>
 
-                            {companyId && (
-                                <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-                                        🔗 Link da sua página de captura:
-                                    </label>
-                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                        <input
-                                            type="text"
-                                            readOnly
-                                            value={`${typeof window !== 'undefined' ? window.location.origin : ''}/captura/${companyId}`}
-                                            style={{
-                                                flex: 1,
-                                                padding: '0.75rem',
-                                                borderRadius: '6px',
-                                                border: '1px solid var(--border-color)',
-                                                background: 'var(--bg-primary)',
-                                                color: 'var(--text-primary)',
-                                                fontSize: '0.9rem'
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary"
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(`${window.location.origin}/captura/${companyId}`);
-                                                alert('Link copiado!');
-                                            }}
-                                        >
-                                            Copiar
-                                        </button>
-                                        <a
-                                            href={`/captura/${companyId}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-ghost"
-                                        >
-                                            Visualizar
-                                        </a>
-                                    </div>
-                                </div>
-                            )}
+
                         </div>
 
                         {/* Botão de Salvar */}
