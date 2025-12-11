@@ -64,6 +64,14 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
+
+  /* Button Colors */
+  --btn-create: #F59E0B;
+  /* Amarelo/Amber - Adicionar/Criar */
+  --btn-create-hover: #D97706;
+  --btn-destructive: #EF4444;
+  /* Vermelho - Cancelar/Excluir */
+  --btn-destructive-hover: #DC2626;
 }
 
 /* === TYPOGRAPHY === */
@@ -155,7 +163,8 @@ h4 {
   border-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Buttons */
+
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -182,7 +191,7 @@ h4 {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2);
   transform: translate(-50%, -50%);
   transition: width 0.6s, height 0.6s;
 }
@@ -192,17 +201,22 @@ h4 {
   height: 300px;
 }
 
+/* Primary - CREATE/ADD (Yellow) */
 .btn-primary {
-  background: var(--primary-gradient);
+  background: var(--btn-create);
+  color: #fff;
+  /* White text looks okay on dark yellow, or use #1a1a1a */
   color: white;
-  box-shadow: 0 4px 12px rgba(80, 90, 100, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 6px 16px rgba(80, 90, 100, 0.4);
+  background: var(--btn-create-hover);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
   transform: translateY(-2px);
 }
 
+/* Secondary - Neutral */
 .btn-secondary {
   background: var(--bg-tertiary);
   color: var(--text-primary);
@@ -214,6 +228,20 @@ h4 {
   border-color: var(--primary);
 }
 
+/* Destructive - CANCEL/DELETE (Red) */
+.btn-destructive {
+  background: var(--btn-destructive);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-destructive:hover {
+  background: var(--btn-destructive-hover);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Ghost - Neutral/Link */
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);

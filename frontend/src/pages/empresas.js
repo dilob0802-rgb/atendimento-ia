@@ -165,11 +165,12 @@ export default function Empresas() {
                                             </td>
                                             <td style={{ textAlign: 'right' }}>
                                                 <button
-                                                    className="btn btn-ghost"
-                                                    style={{ padding: '0.5rem', color: 'var(--error)' }}
+                                                    className="btn btn-destructive"
+                                                    style={{ padding: '0.5rem' }}
                                                     onClick={() => handleDelete(empresa.id)}
+                                                    title="Excluir Empresa"
                                                 >
-                                                    🗑️
+                                                    <span style={{ color: 'white' }}>🗑️</span>
                                                 </button>
                                             </td>
                                         </tr>
@@ -187,73 +188,188 @@ export default function Empresas() {
                     )}
 
                     {showModal && (
-                        <div className={styles.modalOverlay} onClick={(e) => {
+                        <div style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.6)',
+                            backdropFilter: 'blur(4px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 1000,
+                            padding: '1rem'
+                        }} onClick={(e) => {
                             if (e.target === e.currentTarget) setShowModal(false);
                         }}>
-                            <div className={styles.modal}>
-                                <div className={styles.modalHeader}>
-                                    <h3 className={styles.modalTitle}>Nova Empresa</h3>
-                                    <button className={styles.closeButton} onClick={() => setShowModal(false)}>×</button>
+                            <div style={{
+                                background: 'var(--bg-secondary)',
+                                borderRadius: '16px',
+                                width: '100%',
+                                maxWidth: '480px',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                                border: '1px solid var(--border-color)',
+                                overflow: 'hidden'
+                            }}>
+                                {/* Header */}
+                                <div style={{
+                                    padding: '1.5rem',
+                                    borderBottom: '1px solid var(--border-color)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <div>
+                                        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>Nova Empresa</h3>
+                                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                                            Cadastre uma nova organização
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        style={{
+                                            background: 'var(--bg-tertiary)',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            width: '36px',
+                                            height: '36px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'var(--text-secondary)',
+                                            fontSize: '1.25rem',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >×</button>
                                 </div>
 
-                                <form onSubmit={handleSubmit}>
-                                    <div className={styles.formGroup}>
-                                        <label>Nome da Empresa</label>
+                                {/* Form */}
+                                <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
+                                    <div style={{ marginBottom: '1.25rem' }}>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.5rem',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '500',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            Nome da Empresa *
+                                        </label>
                                         <input
                                             type="text"
-                                            className={styles.input}
                                             name="nome"
                                             value={formData.nome}
                                             onChange={handleInputChange}
                                             required
-                                            placeholder="Ex: Minha Loja"
+                                            placeholder="Ex: Loja do João"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '0.95rem',
+                                                transition: 'border-color 0.2s'
+                                            }}
                                         />
                                     </div>
 
-                                    <div className={styles.formGroup}>
-                                        <label>Email Administrativo</label>
+                                    <div style={{ marginBottom: '1.25rem' }}>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.5rem',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '500',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            Email do Administrador *
+                                        </label>
                                         <input
                                             type="email"
-                                            className={styles.input}
                                             name="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
                                             required
                                             placeholder="admin@empresa.com"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '0.95rem'
+                                            }}
                                         />
+                                        <p style={{ margin: '0.5rem 0 0', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                            Este será o email de login do cliente
+                                        </p>
                                     </div>
 
-                                    <div className={styles.formGroup}>
-                                        <label>Telefone (WhatsApp)</label>
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <label style={{
+                                            display: 'block',
+                                            marginBottom: '0.5rem',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '500',
+                                            color: 'var(--text-secondary)'
+                                        }}>
+                                            WhatsApp (Opcional)
+                                        </label>
                                         <input
                                             type="text"
-                                            className={styles.input}
                                             name="telefone"
                                             value={formData.telefone}
                                             onChange={handleInputChange}
                                             placeholder="5511999999999"
+                                            style={{
+                                                width: '100%',
+                                                padding: '0.875rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid var(--border-color)',
+                                                background: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                                fontSize: '0.95rem'
+                                            }}
                                         />
                                     </div>
 
-                                    <div className={styles.formGroup}>
-                                        <label>Contexto da IA (System Prompt)</label>
-                                        <textarea
-                                            className={styles.input}
-                                            name="contexto_ia"
-                                            value={formData.contexto_ia}
-                                            onChange={handleInputChange}
-                                            rows="3"
-                                            placeholder="Descreva como a IA deve se comportar..."
-                                            style={{ resize: 'vertical' }}
-                                        />
+                                    {/* Info Box */}
+                                    <div style={{
+                                        padding: '1rem',
+                                        background: 'rgba(59, 130, 246, 0.1)',
+                                        border: '1px solid rgba(59, 130, 246, 0.2)',
+                                        borderRadius: '10px',
+                                        marginBottom: '1.5rem'
+                                    }}>
+                                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                            💡 O cliente poderá configurar a <strong>personalidade da IA</strong> e outras opções na página de <strong>Configurações</strong> após o cadastro.
+                                        </p>
                                     </div>
 
-                                    <div className={styles.modalFooter}>
-                                        <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>
+                                    {/* Buttons */}
+                                    <div style={{
+                                        display: 'flex',
+                                        gap: '1rem',
+                                        justifyContent: 'flex-end'
+                                    }}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-destructive"
+                                            onClick={() => setShowModal(false)}
+                                        >
                                             Cancelar
                                         </button>
-                                        <button type="submit" className="btn btn-primary" disabled={submitting}>
-                                            {submitting ? 'Salvando...' : 'Criar Empresa'}
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                            disabled={submitting}
+                                        >
+                                            {submitting ? 'Criando...' : '🚀 Criar Empresa'}
                                         </button>
                                     </div>
                                 </form>
