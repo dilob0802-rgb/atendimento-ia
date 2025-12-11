@@ -213,6 +213,16 @@ export default function Configuracoes() {
                                     }}
                                     placeholder="Ex: Você é o assistente virtual da Loja X. Seu nome é Bolt. Responda sempre de forma educada e prestativa..."
                                 />
+                                <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+                                    <a
+                                        href="/chat-demo"
+                                        target="_blank"
+                                        className="btn btn-secondary"
+                                        style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                    >
+                                        <span>🧪</span> Testar IA agora
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
