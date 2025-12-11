@@ -276,7 +276,7 @@ export default function Configuracoes() {
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
                             <button
                                 type="button"
-                                className="btn btn-ghost"
+                                className="btn btn-destructive"
                                 onClick={() => window.history.back()}
                             >
                                 Cancelar
