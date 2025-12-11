@@ -6,19 +6,27 @@ export default function Sidebar() {
     const router = useRouter();
     const isActive = (path) => router.pathname === path ? styles.active : '';
     const [role, setRole] = useState('client');
+    const [companyName, setCompanyName] = useState('Sua Empresa');
 
     useEffect(() => {
         const userRole = localStorage.getItem('user_role');
+        const userName = localStorage.getItem('user_name');
         setRole(userRole || 'client');
+        if (userName) setCompanyName(userName);
     }, []);
 
     const isSuperAdmin = role === 'super_admin';
+    const displayName = isSuperAdmin ? 'Administrador' : companyName;
 
     return (
         <aside className={styles.sidebar}>
+            {/* Topo da Sidebar - Nome da Empresa do Cliente */}
             <div className={styles.logo}>
-                <img src="/logo.png" alt="Dilob" style={{ width: '32px', height: 'auto', marginRight: '0.5rem' }} />
-                <h3>Dilob</h3>
+                {/* Ícone de prédio/empresa genérico para o topo */}
+                <span className={styles.navItemIcon} style={{ marginRight: '0.5rem', color: 'var(--primary)', background: 'rgba(59, 130, 246, 0.1)', padding: '6px', borderRadius: '8px' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="21" width="18" height="2"></rect><path d="M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14"></path><path d="M5 10a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2"></path></svg>
+                </span>
+                <h3 style={{ fontSize: '1.2rem', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</h3>
             </div>
 
             <nav className={styles.nav}>
@@ -70,11 +78,14 @@ export default function Sidebar() {
                 )}
             </nav>
 
-            <div className={styles.userProfile}>
-                <div className={styles.avatar}>{isSuperAdmin ? 'A' : 'E'}</div>
-                <div className={styles.userInfo}>
-                    <h4>{isSuperAdmin ? 'Administrador' : 'Empresa'}</h4>
-                    <span>{isSuperAdmin ? 'Super Admin' : 'Cliente'}</span>
+            <div className={styles.userProfile} style={{ marginTop: 'auto', background: 'var(--bg-primary)' }}>
+                {/* Rodapé - Marca Dilob */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', opacity: 0.8 }}>
+                    <img src="/logo.png" alt="Dilob" style={{ width: '28px', height: 'auto' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Dilob</h4>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Plataforma</span>
+                    </div>
                 </div>
             </div>
         </aside>
