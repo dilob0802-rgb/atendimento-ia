@@ -56,42 +56,52 @@ router.post('/mensagem', async (req, res) => {
         }
 
         // Salva mensagem do cliente
-        await supabase
+        console.log(`📝 Salvando mensagem do cliente [${conversaId}]:`, mensagem.substring(0, 50));
+        const { error: insertError } = await supabase
             .from('mensagens')
             .insert([{
                 conversa_id: conversaId,
                 tipo: 'cliente',
-                conteudo: mensagem
+                mensagem: mensagem // CORRIGIDO: Era 'conteudo', mudado para 'mensagem' para consistência
             }]);
+
+        if (insertError) {
+            console.error('❌ Erro ao salvar mensagem no DB:', insertError);
+            throw new Error(`Erro de banco de dados: ${insertError.message}`);
+        }
 
         // Busca histórico recente
         const { data: historico } = await supabase
             .from('mensagens')
-            .select('tipo, conteudo')
+            .select('tipo, mensagem') // CORRIGIDO
             .eq('conversa_id', conversaId)
             .order('created_at', { ascending: false })
             .limit(10);
 
         const historicoFormatado = historico?.reverse().map(h => ({
             role: h.tipo === 'cliente' ? 'Cliente' : 'Assistente',
-            message: h.conteudo
+            message: h.mensagem // CORRIGIDO
         })) || [];
 
         // Gera resposta da IA
+        console.log('🤖 Gerando resposta da IA...');
         const respostaIA = await gerarResposta(
             mensagem,
             empresa.contexto_ia,
             historicoFormatado
         );
+        console.log('🤖 Resposta gerada:', respostaIA.substring(0, 50));
 
         // Salva resposta da IA
-        await supabase
+        const { error: botInsertError } = await supabase
             .from('mensagens')
             .insert([{
                 conversa_id: conversaId,
                 tipo: 'bot',
-                conteudo: respostaIA
+                mensagem: respostaIA // CORRIGIDO
             }]);
+
+        if (botInsertError) console.error('⚠️ Erro ao salvar resposta do bot:', botInsertError);
 
         res.json({
             success: true,
