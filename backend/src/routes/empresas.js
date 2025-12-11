@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabase } from '../config/supabase.js';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -139,9 +140,8 @@ router.post('/', async (req, res) => {
         // 2. Criar usuário para a empresa
         console.log('👤 Criando usuário para empresa:', empresa.id);
         console.log('📧 Email do usuário:', email);
-        const bcrypt = await import('bcryptjs');
         const senhaHash = await bcrypt.hash(senha, 10);
-        console.log('🔒 Hash da senha gerado');
+        console.log('🔒 Hash da senha gerado:', senhaHash.substring(0, 20) + '...');
 
         const { data: usuario, error: usuarioError } = await supabase
             .from('usuarios')
@@ -211,7 +211,6 @@ router.put('/:id', async (req, res) => {
 
                 // Atualizar senha se fornecida
                 if (nova_senha) {
-                    const bcrypt = await import('bcryptjs');
                     userUpdates.senha_hash = await bcrypt.hash(nova_senha, 10);
                 }
 
