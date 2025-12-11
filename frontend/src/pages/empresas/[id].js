@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../../styles/Dashboard.module.css';
 import Sidebar from '../../components/Sidebar';
+import ProtectedRoute from '../../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -125,7 +126,7 @@ export default function EditarEmpresa() {
     }
 
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Editar Empresa - Dilob</title>
             </Head>
@@ -260,6 +261,6 @@ export default function EditarEmpresa() {
                     </form>
                 </main>
             </div>
-        </>
+        </ProtectedRoute>
     );
 }

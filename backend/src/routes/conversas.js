@@ -101,7 +101,12 @@ router.patch('/:id/status', async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        if (!['ativa', 'finalizada', 'aguardando'].includes(status)) {
+        const allowedStatuses = [
+            'ativa', 'finalizada', 'aguardando', // Status antigos/básicos
+            'novo', 'em_atendimento', 'qualificado', 'proposta', 'fechado', 'perdido' // Status do Kanban CRM
+        ];
+
+        if (!allowedStatuses.includes(status)) {
             return res.status(400).json({
                 success: false,
                 error: 'Status inválido'

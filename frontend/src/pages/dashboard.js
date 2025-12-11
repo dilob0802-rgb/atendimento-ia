@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import styles from '../styles/Dashboard.module.css';
 import Sidebar from '../components/Sidebar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -102,7 +103,7 @@ export default function Dashboard() {
     const isSuperAdmin = role === 'super_admin';
 
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Dashboard - Dilob</title>
             </Head>
@@ -359,6 +360,6 @@ export default function Dashboard() {
                     </div>
                 </main>
             </div>
-        </>
+        </ProtectedRoute>
     );
 }

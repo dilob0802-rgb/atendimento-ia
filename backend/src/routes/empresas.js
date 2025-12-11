@@ -199,14 +199,14 @@ router.put('/:id', async (req, res) => {
                 .select('id')
                 .eq('empresa_id', id)
                 .eq('role', 'client')
-                .single();
+                .maybeSingle(); // Use maybeSingle to avoid error if not found
 
             if (usuario) {
                 const userUpdates = {};
 
                 // Atualizar email se fornecido
                 if (email) {
-                    userUpdates.email = email;
+                    userUpdates.email = email.toLowerCase();
                 }
 
                 // Atualizar senha se fornecida
@@ -222,6 +222,28 @@ router.put('/:id', async (req, res) => {
                 if (userError) {
                     console.error('Erro ao atualizar usuário:', userError);
                     // Não falhar a requisição, apenas logar o erro
+                }
+            } else if (nova_senha) {
+                // Se o usuário não existe mas temos uma senha, vamos criar!
+                console.log('⚠️ Usuário não encontrado para esta empresa. Criando novo...');
+
+                const senhaHash = await bcrypt.hash(nova_senha, 10);
+
+                const { error: createError } = await supabase
+                    .from('usuarios')
+                    .insert([{
+                        nome: empresa.nome, // Usa o nome da empresa
+                        email: (email || empresa.email).toLowerCase(),
+                        senha_hash: senhaHash,
+                        role: 'client',
+                        empresa_id: id,
+                        ativo: true
+                    }]);
+
+                if (createError) {
+                    console.error('Erro ao recriar usuário:', createError);
+                } else {
+                    console.log('✅ Usuário recriado com sucesso!');
                 }
             }
         }

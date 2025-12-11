@@ -1,0 +1,8 @@
+Search results for final@teste.com:
+No users found with this email.
+
+Total users in system: 4
+ - teste@empresa.com (Empresa: null)
+ - manual@teste.com (Empresa: null)
+ - admin@dilob.com (Empresa: null)
+ - teste@123.com (Empresa: d9e5025c-289f-4be9-a231-b8f74f2bcb69)

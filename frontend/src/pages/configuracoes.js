@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import styles from '../styles/Dashboard.module.css';
 import Sidebar from '../components/Sidebar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -118,7 +119,7 @@ export default function Configuracoes() {
     if (loading) return <div className={styles.container}><div style={{ padding: '2rem' }}>Carregando...</div></div>;
 
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Configurações - Dilob</title>
             </Head>
@@ -328,6 +329,6 @@ export default function Configuracoes() {
                     </form>
                 </main>
             </div>
-        </>
+        </ProtectedRoute>
     );
 }

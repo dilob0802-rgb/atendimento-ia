@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from '../styles/Dashboard.module.css';
 import kanbanStyles from '../styles/Kanban.module.css';
 import Sidebar from '../components/Sidebar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -113,20 +114,43 @@ export default function Atendimento() {
             lead.id === leadId ? { ...lead, etapa: newStage } : lead
         ));
 
-        // TODO: Persistir no backend
-        // await fetch(`${API_URL}/api/conversas/${leadId}`, {
-        //     method: 'PUT',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ status: newStage })
-        // });
+        try {
+            await fetch(`${API_URL}/api/conversas/${leadId}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStage })
+            });
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error);
+            // Reverter em caso de erro (opcional)
+        }
     };
 
     const getLeadsByStage = (stageId) => {
         return leads.filter(lead => lead.etapa === stageId);
     };
 
+    // Drag and Drop Handlers
+    const handleDragStart = (e, leadId) => {
+        e.dataTransfer.setData('leadId', leadId);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleDrop = (e, stageId) => {
+        e.preventDefault();
+        const leadId = e.dataTransfer.getData('leadId');
+        if (leadId) {
+            moveCard(leadId, stageId);
+        }
+    };
+
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Atendimento - Kanban de Leads</title>
             </Head>
@@ -148,7 +172,12 @@ export default function Atendimento() {
                     {/* Kanban Board */}
                     <div className={kanbanStyles.kanbanContainer}>
                         {STAGES.map(stage => (
-                            <div key={stage.id} className={kanbanStyles.column}>
+                            <div
+                                key={stage.id}
+                                className={kanbanStyles.column}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, stage.id)}
+                            >
                                 <div className={kanbanStyles.columnHeader} style={{ borderTopColor: stage.color }}>
                                     <h4>{stage.label}</h4>
                                     <span className={kanbanStyles.count}>{getLeadsByStage(stage.id).length}</span>
@@ -162,6 +191,8 @@ export default function Atendimento() {
                                                 key={lead.id}
                                                 className={kanbanStyles.card}
                                                 onClick={() => handleCardClick(lead)}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, lead.id)}
                                             >
                                                 <div className={kanbanStyles.cardName}>{lead.nome}</div>
                                                 {lead.telefone && (
@@ -248,6 +279,6 @@ export default function Atendimento() {
                     </div>
                 </div>
             )}
-        </>
+        </ProtectedRoute>
     );
 }

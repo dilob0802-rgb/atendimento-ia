@@ -4,6 +4,7 @@ import styles from '../styles/Dashboard.module.css';
 import contatosStyles from '../styles/Contatos.module.css';
 import kanbanStyles from '../styles/Kanban.module.css';
 import Sidebar from '../components/Sidebar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -147,7 +148,7 @@ export default function Contatos() {
     };
 
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Contatos - Dilob</title>
             </Head>
@@ -365,6 +366,6 @@ export default function Contatos() {
                     </div>
                 </div>
             )}
-        </>
+        </ProtectedRoute>
     );
 }

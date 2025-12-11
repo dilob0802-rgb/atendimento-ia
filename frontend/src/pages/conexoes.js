@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import styles from '../styles/Conexoes.module.css';
 import Sidebar from '../components/Sidebar';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -67,7 +68,7 @@ export default function Conexoes() {
     }, [whatsappStatus]);
 
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Conexões - Dilob</title>
             </Head>
@@ -191,6 +192,6 @@ export default function Conexoes() {
                     </div>
                 </main>
             </div>
-        </>
+        </ProtectedRoute>
     );
 }

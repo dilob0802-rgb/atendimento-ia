@@ -1,0 +1,9 @@
+Testing API Key: Present
+Model: gemini-1.5-flash
+ERROR: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+Full stack: Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+    at handleResponseNotOk (file:///C:/Users/diogo/Downloads/workspace%20antigravity/Atendimento/backend/node_modules/@google/generative-ai/dist/index.mjs:412:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async makeRequest (file:///C:/Users/diogo/Downloads/workspace%20antigravity/Atendimento/backend/node_modules/@google/generative-ai/dist/index.mjs:385:9)
+    at async generateContent (file:///C:/Users/diogo/Downloads/workspace%20antigravity/Atendimento/backend/node_modules/@google/generative-ai/dist/index.mjs:830:22)
+    at async testGemini (file:///C:/Users/diogo/Downloads/workspace%20antigravity/Atendimento/backend/src/scripts/test_gemini_verify.js:27:24)

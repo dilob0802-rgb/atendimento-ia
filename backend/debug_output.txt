@@ -1,0 +1,9 @@
+
+Found 1 empresas matching 'final':
+- [c7983bed-ea35-44c8-bf1b-4bb21ac7dfcb] final (Email: final@teste.com)
+
+Found 0 users for empresa c7983bed-ea35-44c8-bf1b-4bb21ac7dfcb:
+
+
+Backend Query Result (single check): Error PGRST116 Cannot coerce the result to a single JSON object
+    

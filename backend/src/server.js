@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { testConnection } from './config/supabase.js';
 
 // Rotas
 import empresasRoutes from './routes/empresas.js';
@@ -42,6 +41,25 @@ app.use('/api/conversas', conversasRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 
+// Rota de Teste da IA (Para Debug)
+app.get('/api/test-ai', async (req, res) => {
+    try {
+        const { gerarResposta } = await import('./config/gemini.js');
+        const resposta = await gerarResposta('Diga "Teste OK" se você estiver funcionando.');
+        res.json({
+            status: 'success',
+            message: resposta,
+            env_key_configured: !!process.env.GEMINI_API_KEY
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            error: error.message,
+            stack: error.stack
+        });
+    }
+});
+
 // Middleware de erro
 app.use((err, req, res, next) => {
     console.error('❌ Erro:', err);
@@ -52,17 +70,7 @@ app.use((err, req, res, next) => {
 });
 
 // Inicia o servidor
-async function iniciarServidor() {
-    console.log('🚀 Iniciando servidor...\n');
-
-    // Testa conexão com Supabase
-    await testConnection();
-
-    app.listen(PORT, () => {
-        console.log(`\n✅ Servidor rodando em http://localhost:${PORT}`);
-        console.log(`📚 Documentação: http://localhost:${PORT}/`);
-        console.log('\n💡 Dica: Configure o arquivo .env antes de começar!\n');
-    });
-}
-
-iniciarServidor();
+app.listen(PORT, () => {
+    console.log('✅ Servidor rodando em http://localhost:' + PORT);
+    console.log('📚 Documentação: http://localhost:' + PORT + '/');
+});

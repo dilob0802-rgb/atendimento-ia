@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import { useState, useRef, useEffect } from 'react';
 import styles from '../styles/ChatDemo.module.css';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -128,7 +129,7 @@ export default function ChatDemo() {
     };
 
     return (
-        <>
+        <ProtectedRoute>
             <Head>
                 <title>Chat Demo - Dilob</title>
                 <meta name="description" content="Demonstração do chat com IA" />
@@ -151,38 +152,6 @@ export default function ChatDemo() {
                             ← Voltar
                         </a>
                     </nav>
-
-                    <div className={styles.info + ' glass-card'}>
-                        <h4>💡 Dica</h4>
-                        <p className="text-secondary" style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                            Este chat usa IA real (Google Gemini). Configure o backend para testar!
-                        </p>
-                    </div>
-
-                    <div className={styles.suggestions}>
-                        <h4 style={{ marginBottom: '1rem' }}>Sugestões de perguntas:</h4>
-                        <button
-                            className="btn btn-secondary"
-                            style={{ width: '100%', justifyContent: 'flex-start', marginBottom: '0.5rem' }}
-                            onClick={() => setInputValue('Quais são os horários de atendimento?')}
-                        >
-                            Horários de atendimento
-                        </button>
-                        <button
-                            className="btn btn-secondary"
-                            style={{ width: '100%', justifyContent: 'flex-start', marginBottom: '0.5rem' }}
-                            onClick={() => setInputValue('Como funciona o sistema?')}
-                        >
-                            Como funciona
-                        </button>
-                        <button
-                            className="btn btn-secondary"
-                            style={{ width: '100%', justifyContent: 'flex-start' }}
-                            onClick={() => setInputValue('Preciso falar com um atendente')}
-                        >
-                            Falar com atendente
-                        </button>
-                    </div>
                 </div>
 
                 <div className={styles.chatContainer}>
@@ -253,6 +222,6 @@ export default function ChatDemo() {
                     </div>
                 </div>
             </div>
-        </>
+        </ProtectedRoute>
     );
 }
