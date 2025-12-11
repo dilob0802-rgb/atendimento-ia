@@ -173,18 +173,55 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
+        const { nova_senha, email, ...updates } = req.body;
 
-        const { data, error } = await supabase
+        // 1. Atualizar dados da empresa
+        const { data: empresa, error: empresaError } = await supabase
             .from('empresas')
             .update(updates)
             .eq('id', id)
             .select()
             .single();
 
-        if (error) throw error;
+        if (empresaError) throw empresaError;
 
-        res.json({ success: true, data });
+        // 2. Se houver email ou senha, atualizar o usuário associado
+        if (email || nova_senha) {
+            // Buscar usuário da empresa
+            const { data: usuario } = await supabase
+                .from('usuarios')
+                .select('id')
+                .eq('empresa_id', id)
+                .eq('role', 'client')
+                .single();
+
+            if (usuario) {
+                const userUpdates = {};
+
+                // Atualizar email se fornecido
+                if (email) {
+                    userUpdates.email = email;
+                }
+
+                // Atualizar senha se fornecida
+                if (nova_senha) {
+                    const bcrypt = await import('bcryptjs');
+                    userUpdates.senha_hash = await bcrypt.hash(nova_senha, 10);
+                }
+
+                const { error: userError } = await supabase
+                    .from('usuarios')
+                    .update(userUpdates)
+                    .eq('id', usuario.id);
+
+                if (userError) {
+                    console.error('Erro ao atualizar usuário:', userError);
+                    // Não falhar a requisição, apenas logar o erro
+                }
+            }
+        }
+
+        res.json({ success: true, data: empresa });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

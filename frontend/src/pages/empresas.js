@@ -151,7 +151,19 @@ export default function Empresas() {
                                     {empresas.map((empresa) => (
                                         <tr key={empresa.id}>
                                             <td style={{ fontWeight: 500 }}>
-                                                {empresa.nome}
+                                                <a
+                                                    href={`/empresas/${empresa.id}`}
+                                                    style={{
+                                                        color: 'var(--primary)',
+                                                        textDecoration: 'none',
+                                                        cursor: 'pointer',
+                                                        fontWeight: '600'
+                                                    }}
+                                                    onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                                                    onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+                                                >
+                                                    {empresa.nome}
+                                                </a>
                                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                                                     {empresa.telefone || '-'}
                                                 </div>
