@@ -22,11 +22,7 @@ export async function gerarResposta(mensagem, contextoEmpresa = '', historico = 
         return 'Desculpe, o serviço de IA não está configurado no momento.';
     }
 
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-        // Monta o prompt com contexto da empresa
-        const prompt = `
+    const prompt = `
 Você é um assistente virtual de atendimento ao cliente.
 
 INSTRUÇÕES DA EMPRESA:
@@ -41,14 +37,24 @@ ${mensagem}
 Responda de forma natural, útil e amigável:
 `;
 
+    async function tryGenerate(modelName) {
+        const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        return response.text();
+    }
 
-        return text;
-    } catch (error) {
-        console.error('❌ Erro ao gerar resposta IA:', error);
-        return 'Desculpe, tive um problema ao processar sua mensagem. Tente novamente.';
+    try {
+        // Tenta o modelo mais novo primeiro
+        return await tryGenerate('gemini-2.5-flash');
+    } catch (error1) {
+        console.warn('⚠️ Falha no gemini-2.5-flash, tentando fallback para 1.5-flash:', error1.message);
+        try {
+            return await tryGenerate('gemini-1.5-flash');
+        } catch (error2) {
+            console.error('❌ Erro fatual na IA (ambos modelos):', error2);
+            return 'Desculpe, estou com dificuldades técnicas momentâneas. Por favor, aguarde um instante.';
+        }
     }
 }
 
@@ -59,7 +65,7 @@ export async function analisarSentimento(mensagem) {
     if (!genAI) return 'neutro';
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usando 1.5 que é mais estável para tarefas simples
         const prompt = `Analise o sentimento desta mensagem e responda APENAS com uma palavra: positivo, negativo ou neutro.
 
 Mensagem: "${mensagem}"
