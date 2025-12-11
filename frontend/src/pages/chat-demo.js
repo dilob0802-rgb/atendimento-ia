@@ -32,15 +32,56 @@ export default function ChatDemo() {
             setCompanyName(storedCompanyName);
         }
 
+        if (storedCompanyId && storedCompanyId !== 'demo') {
+            setEmpresaId(storedCompanyId);
+        }
+
         if (storedLead) {
             try {
                 const lead = JSON.parse(storedLead);
                 setCurrentLead(lead);
-                setMessages([{
-                    tipo: 'bot',
-                    mensagem: `Olá ${lead.nome}! 👋 Sou seu assistente virtual. Como posso ajudar hoje?`,
-                    timestamp: new Date()
-                }]);
+
+                // Se o lead tem um ID de conversa, busca o histórico
+                if (lead.conversa_id) {
+                    console.log('🔄 Buscando histórico da conversa:', lead.conversa_id);
+                    fetch(`${API_URL}/api/chat/conversa/${lead.conversa_id}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && data.data && data.data.length > 0) {
+                                // Mapeia mensagens do DB para formato do chat
+                                const dbMessages = data.data.map(m => ({
+                                    tipo: m.tipo,
+                                    mensagem: m.mensagem, // O backend já retorna 'mensagem' corretamente
+                                    timestamp: new Date(m.created_at)
+                                }));
+                                setMessages(dbMessages);
+                                setTimeout(scrollToBottom, 500);
+                            } else {
+                                // Se não tem histórico, mostra saudação
+                                setMessages([{
+                                    tipo: 'bot',
+                                    mensagem: `Olá ${lead.nome}! 👋 Sou seu assistente virtual. Como posso ajudar hoje?`,
+                                    timestamp: new Date()
+                                }]);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Erro ao buscar histórico:', err);
+                            // Fallback para saudação
+                            setMessages([{
+                                tipo: 'bot',
+                                mensagem: `Olá ${lead.nome}! 👋 Sou seu assistente virtual. Como posso ajudar hoje?`,
+                                timestamp: new Date()
+                            }]);
+                        });
+                } else {
+                    // Lead sem conversa iniciada (novo)
+                    setMessages([{
+                        tipo: 'bot',
+                        mensagem: `Olá ${lead.nome}! 👋 Sou seu assistente virtual. Como posso ajudar hoje?`,
+                        timestamp: new Date()
+                    }]);
+                }
             } catch (e) {
                 console.error('Erro ao carregar lead:', e);
             }
@@ -51,21 +92,7 @@ export default function ChatDemo() {
                 timestamp: new Date()
             }]);
         }
-
-        // Usar company_id do localStorage ou buscar primeira empresa
-        if (storedCompanyId && storedCompanyId !== 'demo') {
-            setEmpresaId(storedCompanyId);
-        } else {
-            fetch(`${API_URL}/api/empresas`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.data.length > 0) {
-                        setEmpresaId(data.data[0].id);
-                    }
-                })
-                .catch(err => console.error('Erro ao buscar empresa:', err));
-        }
-    }, []);
+    }, [empresaId]);
 
     const handleSend = async () => {
         if (!inputValue.trim() || loading) return;
