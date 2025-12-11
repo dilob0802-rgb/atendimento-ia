@@ -5,13 +5,8 @@ import styles from '../styles/ChatDemo.module.css';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function ChatDemo() {
-    const [messages, setMessages] = useState([
-        {
-            tipo: 'bot',
-            mensagem: 'Olá! 👋 Sou seu assistente virtual. Como posso ajudar hoje?',
-            timestamp: new Date()
-        }
-    ]);
+    const [currentLead, setCurrentLead] = useState(null);
+    const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
     const [empresaId, setEmpresaId] = useState(null);
@@ -26,15 +21,43 @@ export default function ChatDemo() {
     }, [messages]);
 
     useEffect(() => {
-        // Busca primeira empresa disponível
-        fetch(`${API_URL}/api/empresas`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && data.data.length > 0) {
-                    setEmpresaId(data.data[0].id);
-                }
-            })
-            .catch(err => console.error('Erro ao buscar empresa:', err));
+        // Buscar lead atual do localStorage (vindo do Kanban)
+        const storedLead = localStorage.getItem('current_lead');
+        const storedCompanyId = localStorage.getItem('company_id');
+
+        if (storedLead) {
+            try {
+                const lead = JSON.parse(storedLead);
+                setCurrentLead(lead);
+                setMessages([{
+                    tipo: 'bot',
+                    mensagem: `Olá ${lead.nome}! 👋 Sou seu assistente virtual. Como posso ajudar hoje?`,
+                    timestamp: new Date()
+                }]);
+            } catch (e) {
+                console.error('Erro ao carregar lead:', e);
+            }
+        } else {
+            setMessages([{
+                tipo: 'bot',
+                mensagem: 'Olá! 👋 Sou seu assistente virtual. Como posso ajudar hoje?',
+                timestamp: new Date()
+            }]);
+        }
+
+        // Usar company_id do localStorage ou buscar primeira empresa
+        if (storedCompanyId && storedCompanyId !== 'demo') {
+            setEmpresaId(storedCompanyId);
+        } else {
+            fetch(`${API_URL}/api/empresas`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.data.length > 0) {
+                        setEmpresaId(data.data[0].id);
+                    }
+                })
+                .catch(err => console.error('Erro ao buscar empresa:', err));
+        }
     }, []);
 
     const handleSend = async () => {
@@ -58,8 +81,9 @@ export default function ChatDemo() {
                 },
                 body: JSON.stringify({
                     empresa_id: empresaId || 'demo',
-                    cliente_nome: 'Visitante',
-                    cliente_telefone: 'web-demo',
+                    cliente_nome: currentLead?.nome || 'Visitante',
+                    cliente_telefone: currentLead?.telefone || 'web-demo',
+                    cliente_email: currentLead?.email || '',
                     mensagem: inputValue,
                     canal: 'web'
                 })
@@ -100,19 +124,19 @@ export default function ChatDemo() {
     return (
         <>
             <Head>
-                <title>Chat Demo - Atendimento IA</title>
+                <title>Chat Demo - Dilob</title>
                 <meta name="description" content="Demonstração do chat com IA" />
             </Head>
 
             <div className={styles.container}>
                 <div className={styles.sidebar}>
                     <div className={styles.logo}>
-                        <div className={styles.logoIcon}>🤖</div>
-                        <h3>Atendimento IA</h3>
+                        <img src="/logo.png" alt="Dilob" style={{ width: '32px', height: 'auto', marginRight: '0.5rem' }} />
+                        <h3>Dilob</h3>
                     </div>
 
                     <nav className={styles.nav}>
-                        <a href="/" className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>
+                        <a href="/dashboard" className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }}>
                             ← Voltar
                         </a>
                     </nav>
@@ -153,7 +177,9 @@ export default function ChatDemo() {
                 <div className={styles.chatContainer}>
                     <div className={styles.chatHeader + ' glass-card'}>
                         <div className={styles.chatHeaderInfo}>
-                            <div className={styles.chatHeaderAvatar}>🤖</div>
+                            <div className={styles.chatHeaderAvatar} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src="/logo.png" alt="Bot" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+                            </div>
                             <div>
                                 <h3 style={{ margin: 0 }}>Assistente Virtual</h3>
                                 <span className={styles.chatStatus}>

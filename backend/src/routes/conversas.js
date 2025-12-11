@@ -3,6 +3,35 @@ import { supabase } from '../config/supabase.js';
 
 const router = express.Router();
 
+// Listar todas as conversas (com filtro opcional por empresa_id)
+router.get('/', async (req, res) => {
+    try {
+        const { empresa_id, status, limite = 50 } = req.query;
+
+        let query = supabase
+            .from('conversas')
+            .select('*')
+            .order('updated_at', { ascending: false })
+            .limit(parseInt(limite));
+
+        if (empresa_id) {
+            query = query.eq('empresa_id', empresa_id);
+        }
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        res.json({ success: true, data });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Listar conversas de uma empresa
 router.get('/empresa/:empresaId', async (req, res) => {
     try {

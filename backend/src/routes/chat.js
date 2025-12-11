@@ -7,7 +7,7 @@ const router = express.Router();
 // Enviar mensagem e receber resposta da IA
 router.post('/mensagem', async (req, res) => {
     try {
-        const { empresa_id, cliente_nome, cliente_telefone, mensagem, canal } = req.body;
+        const { empresa_id, cliente_nome, cliente_telefone, cliente_email, mensagem, canal } = req.body;
 
         if (!empresa_id || !mensagem) {
             return res.status(400).json({
@@ -44,6 +44,7 @@ router.post('/mensagem', async (req, res) => {
                     empresa_id,
                     cliente_nome: cliente_nome || 'Cliente',
                     cliente_telefone,
+                    cliente_email: cliente_email || null,
                     canal: canal || 'web',
                     status: 'ativa'
                 }])
@@ -60,20 +61,20 @@ router.post('/mensagem', async (req, res) => {
             .insert([{
                 conversa_id: conversaId,
                 tipo: 'cliente',
-                mensagem
+                conteudo: mensagem
             }]);
 
         // Busca histórico recente
         const { data: historico } = await supabase
             .from('mensagens')
-            .select('tipo, mensagem')
+            .select('tipo, conteudo')
             .eq('conversa_id', conversaId)
             .order('created_at', { ascending: false })
             .limit(10);
 
         const historicoFormatado = historico?.reverse().map(h => ({
             role: h.tipo === 'cliente' ? 'Cliente' : 'Assistente',
-            message: h.mensagem
+            message: h.conteudo
         })) || [];
 
         // Gera resposta da IA
@@ -89,7 +90,7 @@ router.post('/mensagem', async (req, res) => {
             .insert([{
                 conversa_id: conversaId,
                 tipo: 'bot',
-                mensagem: respostaIA
+                conteudo: respostaIA
             }]);
 
         res.json({

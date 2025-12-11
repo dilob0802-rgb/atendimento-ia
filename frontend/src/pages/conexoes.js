@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import styles from '../styles/Conexoes.module.css';
+import Sidebar from '../components/Sidebar';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -44,62 +45,35 @@ export default function Conexoes() {
         setQrCode(null);
     };
 
-    // Simular conexão bem sucedida após 10 segundos (para demo)
+    // Check status periodically
     useEffect(() => {
-        if (qrCode && whatsappStatus === 'pending') {
-            const timer = setTimeout(() => {
-                setWhatsappStatus('connected');
-                setQrCode(null);
-            }, 10000);
-            return () => clearTimeout(timer);
+        let interval;
+        if (whatsappStatus === 'pending' || whatsappStatus === 'disconnected') {
+            interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_URL}/api/whatsapp/status/empresa-demo`);
+                    const data = await response.json();
+
+                    if (data.status === 'connected') {
+                        setWhatsappStatus('connected');
+                        setQrCode(null);
+                    }
+                } catch (error) {
+                    // Ignora erros de rede no polling
+                }
+            }, 3000);
         }
-    }, [qrCode, whatsappStatus]);
+        return () => clearInterval(interval);
+    }, [whatsappStatus]);
 
     return (
         <>
             <Head>
-                <title>Conexões - Atendimento IA</title>
+                <title>Conexões - Dilob</title>
             </Head>
 
             <div className={styles.container}>
-                {/* Sidebar */}
-                <aside className={styles.sidebar}>
-                    <div className={styles.logo}>
-                        <div className={styles.logoIcon}>🤖</div>
-                        <h3>Atendimento IA</h3>
-                    </div>
-
-                    <nav className={styles.nav}>
-                        <a href="/dashboard" className={styles.navItem}>
-                            <span className={styles.navItemIcon}>📊</span>
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="/chat-demo" className={styles.navItem}>
-                            <span className={styles.navItemIcon}>💬</span>
-                            <span>Atendimento</span>
-                        </a>
-                        <a href="#" className={styles.navItem}>
-                            <span className={styles.navItemIcon}>👥</span>
-                            <span>Contatos</span>
-                        </a>
-                        <a href="/conexoes" className={`${styles.navItem} ${styles.active}`}>
-                            <span className={styles.navItemIcon}>📱</span>
-                            <span>Conexões</span>
-                        </a>
-                        <a href="#" className={styles.navItem}>
-                            <span className={styles.navItemIcon}>⚙️</span>
-                            <span>Configurações</span>
-                        </a>
-                    </nav>
-
-                    <div className={styles.userProfile}>
-                        <div className={styles.avatar}>D</div>
-                        <div className={styles.userInfo}>
-                            <h4>Diogo</h4>
-                            <span>Admin</span>
-                        </div>
-                    </div>
-                </aside>
+                <Sidebar />
 
                 {/* Main Content */}
                 <main className={styles.main}>
@@ -117,8 +91,8 @@ export default function Conexoes() {
 
                             {/* Status Badge */}
                             <div className={`${styles.statusBadge} ${whatsappStatus === 'connected' ? styles.statusConnected :
-                                    whatsappStatus === 'pending' ? styles.statusPending :
-                                        styles.statusDisconnected
+                                whatsappStatus === 'pending' ? styles.statusPending :
+                                    styles.statusDisconnected
                                 }`}>
                                 <span>●</span>
                                 {whatsappStatus === 'connected' && 'Conectado'}

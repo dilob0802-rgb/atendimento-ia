@@ -3,17 +3,66 @@ import { supabase } from '../config/supabase.js';
 
 const router = express.Router();
 
-// Listar todas as empresas
+// Listar todas as empresas com estatísticas
 router.get('/', async (req, res) => {
     try {
-        const { data, error } = await supabase
+        // 1. Buscar empresas
+        const { data: empresas, error } = await supabase
             .from('empresas')
             .select('*')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        res.json({ success: true, data });
+        // 2. Buscar estatísticas para cada empresa
+        const empresasComStats = await Promise.all(empresas.map(async (empresa) => {
+            // Contar conversas (Leads)
+            const { count: totalConversas } = await supabase
+                .from('conversas')
+                .select('*', { count: 'exact', head: true })
+                .eq('empresa_id', empresa.id);
+
+            // Contar mensagens (Interações) - precisamos fazer um join ou query separada
+            // Como 'mensagens' não tem direto empresa_id (tem conversa_id), precisamos de um hack ou query melhor
+            // Simplificação: vamos buscar todas as conversas e somar mensagens (pode ser pesado, mas funcional pra MVP)
+            // Alternativa eficiente: criar uma view no SQL. Mas aqui via código:
+
+            // Buscar conversas da empresa para contar mensagens
+            const { data: conversas } = await supabase
+                .from('conversas')
+                .select('id, updated_at')
+                .eq('empresa_id', empresa.id);
+
+            let totalMensagens = 0;
+            let ultimaInteracao = null;
+
+            if (conversas && conversas.length > 0) {
+                const conversaIds = conversas.map(c => c.id);
+
+                // Contar mensagens dessas conversas
+                const { count } = await supabase
+                    .from('mensagens')
+                    .select('*', { count: 'exact', head: true })
+                    .in('conversa_id', conversaIds);
+
+                totalMensagens = count || 0;
+
+                // Pegar a data mais recente
+                conversas.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+                ultimaInteracao = conversas[0].updated_at;
+            }
+
+            return {
+                ...empresa,
+                stats: {
+                    leads: totalConversas || 0,
+                    mensagens: totalMensagens || 0,
+                    ultima_interacao: ultimaInteracao
+                }
+            };
+        }));
+
+        res.json({ success: true, data: empresasComStats });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

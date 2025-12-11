@@ -8,6 +8,7 @@ import empresasRoutes from './routes/empresas.js';
 import conversasRoutes from './routes/conversas.js';
 import chatRoutes from './routes/chat.js';
 import whatsappRoutes from './routes/whatsapp.js';
+import authRoutes from './routes/auth.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
         message: '🤖 API de Atendimento Automatizado',
         version: '1.0.0',
         endpoints: {
+            auth: '/api/auth',
             empresas: '/api/empresas',
             conversas: '/api/conversas',
             chat: '/api/chat',
@@ -34,6 +36,7 @@ app.get('/', (req, res) => {
 });
 
 // Rotas da API
+app.use('/api/auth', authRoutes);
 app.use('/api/empresas', empresasRoutes);
 app.use('/api/conversas', conversasRoutes);
 app.use('/api/chat', chatRoutes);

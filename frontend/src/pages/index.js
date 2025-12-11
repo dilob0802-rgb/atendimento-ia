@@ -3,27 +3,60 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/Home.module.css';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export default function Login() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-        // Simulação de login por enquanto
-        setTimeout(() => {
+        setError('');
+
+        try {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha: password })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Salvar dados no localStorage
+                localStorage.setItem('auth_token', data.data.token);
+                localStorage.setItem('user_role', data.data.user.role === 'super_admin' ? 'super_admin' : 'client');
+                localStorage.setItem('user_name', data.data.user.nome);
+                localStorage.setItem('user_email', data.data.user.email);
+
+                if (data.data.user.empresa_id) {
+                    localStorage.setItem('company_id', data.data.user.empresa_id);
+                } else {
+                    localStorage.removeItem('company_id');
+                }
+
+                // Redirecionar
+                window.location.href = '/dashboard';
+            } else {
+                setError(data.error || 'Erro ao fazer login');
+            }
+        } catch (err) {
+            console.error('Erro no login:', err);
+            setError('Erro de conexão. Verifique se o servidor está rodando.');
+        } finally {
             setLoading(false);
-            router.push('/dashboard');
-        }, 1500);
+        }
     };
 
     return (
         <>
             <Head>
-                <title>Login - Atendimento IA</title>
-                <meta name="description" content="Acesse sua conta no Atendimento IA" />
+                <title>Login - Dilob</title>
+                <meta name="description" content="Acesse sua conta no Dilob" />
             </Head>
 
             <div className={styles.container}>
@@ -31,8 +64,8 @@ export default function Login() {
                     {/* Lado Esquerdo - Slogan e Visual */}
                     <div className={styles.loginVisual}>
                         <div className={styles.logo}>
-                            <div className={styles.logoIcon}>🤖</div>
-                            <h3>Atendimento IA</h3>
+                            <img src="/logo.png" alt="Dilob Logo" style={{ width: '80px', height: 'auto', marginBottom: '1rem' }} />
+                            <h3>Dilob</h3>
                         </div>
 
                         <div className={styles.heroContent}>
@@ -86,6 +119,20 @@ export default function Login() {
                                     />
                                 </div>
 
+                                {error && (
+                                    <div style={{
+                                        padding: '0.75rem 1rem',
+                                        background: 'rgba(239, 68, 68, 0.1)',
+                                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                                        borderRadius: '8px',
+                                        color: '#ef4444',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        {error}
+                                    </div>
+                                )}
+
                                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
                                     {loading ? (
                                         <div className="spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div>
@@ -102,11 +149,24 @@ export default function Login() {
                             </div>
                         </div>
 
-                        <div className="mt-4 text-center">
-                            <p className="text-secondary" style={{ fontSize: '0.9rem' }}>
-                                Não tem uma conta? <a href="#" className="text-primary" style={{ fontWeight: '600', textDecoration: 'none' }}>Fale com vendas</a>
-                            </p>
+                        {/* Credenciais de Teste (Visível apenas em Dev) */}
+                        <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                            <p style={{ fontWeight: '600', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>🧪 Credenciais de Teste:</p>
+                            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                                <div style={{ cursor: 'pointer' }} onClick={() => { setEmail('admin@dilob.com'); setPassword('admin123'); setError(''); }}>
+                                    <span style={{ color: 'var(--primary-light)', fontWeight: '500' }}>Admin:</span> admin@dilob.com
+                                </div>
+                                <div style={{ cursor: 'pointer' }} onClick={() => { setEmail('teste@empresa.com'); setPassword('admin123'); setError(''); }}>
+                                    <span style={{ color: 'var(--success)', fontWeight: '500' }}>Cliente:</span> teste@empresa.com
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div className="mt-4 text-center">
+                        <p className="text-secondary" style={{ fontSize: '0.9rem' }}>
+                            Não tem uma conta? <a href="#" className="text-primary" style={{ fontWeight: '600', textDecoration: 'none' }}>Fale com vendas</a>
+                        </p>
                     </div>
                 </div>
             </div>
