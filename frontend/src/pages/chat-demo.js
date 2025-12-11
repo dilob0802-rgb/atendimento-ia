@@ -188,11 +188,11 @@ export default function ChatDemo() {
                 <div className={styles.chatContainer}>
                     <div className={styles.chatHeader + ' glass-card'}>
                         <div className={styles.chatHeaderInfo}>
-                            <div className={styles.chatHeaderAvatar} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <img src="/logo.png" alt="Bot" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+                            <div className={styles.chatHeaderAvatar} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '50%' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--primary)' }}><rect x="3" y="21" width="18" height="2"></rect><path d="M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14"></path><path d="M5 10a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2"></path></svg>
                             </div>
                             <div>
-                                <h3 style={{ margin: 0 }}>Assistente Virtual</h3>
+                                <h3 style={{ margin: 0 }}>{companyName}</h3>
                                 <span className={styles.chatStatus}>
                                     <span className={styles.statusDot}></span>
                                     Online
